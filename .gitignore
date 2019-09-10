@@ -4,3 +4,6 @@ target
 src/test/
 README.md
 logs
+.settings
+/.classpath
+/.project

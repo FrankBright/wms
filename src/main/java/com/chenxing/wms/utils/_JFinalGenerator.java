@@ -20,7 +20,7 @@ public class _JFinalGenerator {
 
     public static void main(String[] args) {
         // base model 所使用的包名
-        String baseModelPackageName = "com.erpsnow.erp";
+        String baseModelPackageName = "com.erpcx.erp";
         // base model 文件保存路径
         String baseModelOutputDir = PathKit.getWebRootPath() + "/src/main/test/erp/base";
 
@@ -41,7 +41,7 @@ public class _JFinalGenerator {
         // 设置是否生成字典文件
         generator.setGenerateDataDictionary(false);
         // 设置需要被移除的表名前缀用于生成modelName。例如表名 "osc_user"，移除前缀 "osc_"后生成的model名为 "User"而非 OscUser
-        generator.setRemovedTableNamePrefixes("72crm_");
+        generator.setRemovedTableNamePrefixes("wms_");
         // 生成
         generator.generate();
     }
