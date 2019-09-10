@@ -39,13 +39,13 @@ public class TaskService{
             if(isOpen == 0 && ! AuthUtil.isWorkAuth(taskClass.getWorkId().toString(), "taskClass:save")){
                 return R.noAuth();
             }
-            Integer orderNum = Db.queryInt("select max(order_num) from `72crm_work_task_class` where work_id = ?", taskClass.getWorkId());
+            Integer orderNum = Db.queryInt("select max(order_num) from `wms_work_task_class` where work_id = ?", taskClass.getWorkId());
             taskClass.setOrderNum(orderNum+1);
             taskClass.setCreateUserId(BaseUtil.getUser().getUserId().intValue());
             taskClass.setCreateTime(new Date());
             bol = taskClass.save();
         }else{
-            Integer workId = Db.queryInt("select work_id from `72crm_work_task_class` where class_id = ?", taskClass.getClassId());
+            Integer workId = Db.queryInt("select work_id from `wms_work_task_class` where class_id = ?", taskClass.getClassId());
             if(! AuthUtil.isWorkAuth(workId.toString(), "taskClass:update")){
                 return R.noAuth();
             }
@@ -60,8 +60,8 @@ public class TaskService{
         WorkTaskClass targetClass = WorkTaskClass.dao.findById(targetClassId);
         Integer originalClassOrderId = originalClass.getOrderNum();
         Integer targetClassOrderId = targetClass.getOrderNum();
-        Db.update("update 72crm_work_task_class setUser order_id = ? where class_id = ?", originalClassOrderId, targetClassId);
-        Db.update("update 72crm_work_task_class setUser order_id = ? where class_id = ?", targetClassOrderId, originalClassId);
+        Db.update("update wms_work_task_class setUser order_id = ? where class_id = ?", originalClassOrderId, targetClassId);
+        Db.update("update wms_work_task_class setUser order_id = ? where class_id = ?", targetClassOrderId, originalClassId);
     }
 
     @Before(Tx.class)
@@ -98,7 +98,7 @@ public class TaskService{
             bol = getWorkTaskLog(task, user.getUserId().intValue());
         }
         if(taskRelation.getBusinessIds() != null || taskRelation.getContactsIds() != null || taskRelation.getContractIds() != null || taskRelation.getCustomerIds() != null){
-            Db.deleteById("72crm_task_relation", "task_id", task.getTaskId());
+            Db.deleteById("wms_task_relation", "task_id", task.getTaskId());
             taskRelation.setCreateTime(DateUtil.date());
             taskRelation.setTaskId(task.getTaskId());
             taskRelation.save();
@@ -123,7 +123,7 @@ public class TaskService{
     public R queryTaskInfo(String taskId){
         Record mainTask = transfer(taskId);
         adminFileService.queryByBatchId(mainTask.get("batch_id"), mainTask);
-        List<Record> recordList = Db.find("select task_id from 72crm_task where pid = ?", taskId);
+        List<Record> recordList = Db.find("select task_id from wms_task where pid = ?", taskId);
         List<Record> childTaskList = new ArrayList<>();
         if(recordList != null && recordList.size() > 0){
             recordList.forEach(childTaskRecord -> {
@@ -138,17 +138,17 @@ public class TaskService{
     }
 
     private Record transfer(String taskId){
-        Record task = Db.findFirst("select a.*,b.name as workName from 72crm_task a left join `72crm_work` b on a.work_id = b.work_id where task_id = ?", taskId);
+        Record task = Db.findFirst("select a.*,b.name as workName from wms_task a left join `wms_work` b on a.work_id = b.work_id where task_id = ?", taskId);
         task.set("stop_time", DateUtil.formatDate(task.getDate("stop_time")));
-        task.set("mainUser", Db.findFirst("select user_id,realname,img from 72crm_admin_user where user_id = ?", task.getInt("main_user_id")));
-        task.set("createUser", Db.findFirst("select user_id,realname,img from 72crm_admin_user where user_id = ?", task.getInt("create_user_id")));
+        task.set("mainUser", Db.findFirst("select user_id,realname,img from wms_admin_user where user_id = ?", task.getInt("main_user_id")));
+        task.set("createUser", Db.findFirst("select user_id,realname,img from wms_admin_user where user_id = ?", task.getInt("create_user_id")));
         ArrayList<Record> labelList = new ArrayList<>();
         ArrayList<Record> ownerUserList = new ArrayList<>();
         if(StrUtil.isNotBlank(task.getStr("label_id"))){
             String[] labelIds = task.getStr("label_id").split(",");
             for(String labelId : labelIds){
                 if(StrUtil.isNotBlank(labelId)){
-                    Record label = Db.findFirst("select label_id,name as labelName,color from 72crm_work_task_label where label_id = ?", labelId);
+                    Record label = Db.findFirst("select label_id,name as labelName,color from wms_work_task_label where label_id = ?", labelId);
                     labelList.add(label);
                 }
             }
@@ -157,12 +157,12 @@ public class TaskService{
             String[] ownerUserIds = task.getStr("owner_user_id").split(",");
             for(String ownerUserId : ownerUserIds){
                 if(StrUtil.isNotBlank(ownerUserId)){
-                    Record ownerUser = Db.findFirst("select user_id,realname,img from 72crm_admin_user where user_id = ?", ownerUserId);
+                    Record ownerUser = Db.findFirst("select user_id,realname,img from wms_admin_user where user_id = ?", ownerUserId);
                     ownerUserList.add(ownerUser);
                 }
             }
         }
-        Record relation = Db.findFirst("select * FROM 72crm_task_relation where task_id = ?", taskId);
+        Record relation = Db.findFirst("select * FROM wms_task_relation where task_id = ?", taskId);
         List<Record> customerList = new ArrayList<>();
         List<Record> contactsList = new ArrayList<>();
         List<Record> businessList = new ArrayList<>();
@@ -172,7 +172,7 @@ public class TaskService{
                 String[] customerIds = relation.getStr("customer_ids").split(",");
                 for(String customerId : customerIds){
                     if(StrUtil.isNotBlank(customerId)){
-                        Record customer = Db.findFirst("select customer_id,customer_name  from 72crm_crm_customer where customer_id = ?", customerId);
+                        Record customer = Db.findFirst("select customer_id,customer_name  from wms_crm_customer where customer_id = ?", customerId);
                         if(customer != null){
                             customerList.add(customer);
                         }
@@ -185,7 +185,7 @@ public class TaskService{
 
                 for(String contactsId : contactsIds){
                     if(StrUtil.isNotBlank(contactsId)){
-                        Record contacts = Db.findFirst("select contacts_id,name from 72crm_crm_contacts  where contacts_id = ?", contactsId);
+                        Record contacts = Db.findFirst("select contacts_id,name from wms_crm_contacts  where contacts_id = ?", contactsId);
                         if(contacts != null){
                             contactsList.add(contacts);
                         }
@@ -197,7 +197,7 @@ public class TaskService{
 
                 for(String businessId : businessIds){
                     if(StrUtil.isNotBlank(businessId)){
-                        Record business = Db.findFirst("select business_id,business_name  from 72crm_crm_business  where business_id = ?", businessId);
+                        Record business = Db.findFirst("select business_id,business_name  from wms_crm_business  where business_id = ?", businessId);
                         if(business != null){
                             businessList.add(business);
                         }
@@ -208,7 +208,7 @@ public class TaskService{
                 String[] contractIds = relation.getStr("contract_ids").split(",");
                 for(String contractId : contractIds){
                     if(StrUtil.isNotBlank(contractId)){
-                        Record contract = Db.findFirst("select contract_id,name from 72crm_crm_contract  where contract_id = ?", contractId);
+                        Record contract = Db.findFirst("select contract_id,name from wms_crm_contract  where contract_id = ?", contractId);
                         if(contract != null){
                             contractList.add(contract);
                         }
@@ -261,7 +261,7 @@ public class TaskService{
                 String[] labelIds = task.getStr("label_id").split(",");
                 for(String labelId : labelIds){
                     if(StrUtil.isNotBlank(labelId)){
-                        Record label = Db.findFirst("select label_id,name as labelName , color from 72crm_work_task_label where label_id = ?", labelId);
+                        Record label = Db.findFirst("select label_id,name as labelName , color from wms_work_task_label where label_id = ?", labelId);
                         labelList.add(label);
                     }
                 }
@@ -270,12 +270,12 @@ public class TaskService{
                 String[] ownerUserIds = task.getStr("owner_user_id").split(",");
                 for(String ownerUserId : ownerUserIds){
                     if(StrUtil.isNotBlank(ownerUserId)){
-                        Record ownerUser = Db.findFirst("select user_id,realname,img from 72crm_admin_user where user_id = ?", ownerUserId);
+                        Record ownerUser = Db.findFirst("select user_id,realname,img from wms_admin_user where user_id = ?", ownerUserId);
                         ownerUserList.add(ownerUser);
                     }
                 }
             }
-            TaskRelation taskRelation = TaskRelation.dao.findFirst(" select * from 72crm_task_relation where task_id = ?", task.getInt("task_id"));
+            TaskRelation taskRelation = TaskRelation.dao.findFirst(" select * from wms_task_relation where task_id = ?", task.getInt("task_id"));
             Integer start = 0;
             if(taskRelation != null){
                 start = queryCount(start, taskRelation.getBusinessIds());
@@ -484,7 +484,7 @@ public class TaskService{
      * 添加任务与业务关联
      */
     public R svaeTaskRelation(TaskRelation taskRelation, Integer userId){
-        Db.delete("delete from `72crm_task_relation` where task_id = ?", taskRelation.getTaskId());
+        Db.delete("delete from `wms_task_relation` where task_id = ?", taskRelation.getTaskId());
         taskRelation.setCreateTime(DateUtil.date());
         return taskRelation.save() ? R.ok() : R.error();
     }
@@ -500,7 +500,7 @@ public class TaskService{
         if(task.getPid() != 0){
             bol = task.delete();
         }else {
-            bol = Db.update("update 72crm_task set ishidden = 1,hidden_time = now() where task_id = ?", taskId) > 0;
+            bol = Db.update("update wms_task set ishidden = 1,hidden_time = now() where task_id = ?", taskId) > 0;
         }
         return bol ? R.ok() : R.error();
     }
@@ -522,12 +522,12 @@ public class TaskService{
 
     private void composeUser(Record record){
         Integer createUserId = record.getInt("create_user_id");
-        record.set("createUser",Db.findFirst("select user_id,realname,img from 72crm_admin_user where user_id = ?", createUserId));
+        record.set("createUser",Db.findFirst("select user_id,realname,img from wms_admin_user where user_id = ?", createUserId));
         Integer mainUserId = record.getInt("main_user_id");
-        record.set("mainUser",Db.findFirst("select user_id,realname,img from 72crm_admin_user where user_id = ?", mainUserId));
+        record.set("mainUser",Db.findFirst("select user_id,realname,img from wms_admin_user where user_id = ?", mainUserId));
         String ownerUserId = record.getStr("owner_user_id");
         List<Record> ownerUserList = new ArrayList<>();
-        TagUtil.toSet(ownerUserId).forEach(userId-> ownerUserList.add(Db.findFirst("select user_id,realname,img from 72crm_admin_user where user_id = ?", userId)));
+        TagUtil.toSet(ownerUserId).forEach(userId-> ownerUserList.add(Db.findFirst("select user_id,realname,img from wms_admin_user where user_id = ?", userId)));
         record.set("ownerUserList",ownerUserList);
     }
 
@@ -538,7 +538,7 @@ public class TaskService{
     }
 
     public R archiveByTaskId(Integer taskId){
-        int update = Db.update("update  `72crm_task` set is_archive = 1,archive_time = now() where task_id = ?", taskId);
+        int update = Db.update("update  `wms_task` set is_archive = 1,archive_time = now() where task_id = ?", taskId);
         return update > 0 ? R.ok() : R.error();
     }
 }

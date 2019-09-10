@@ -43,7 +43,7 @@ public class CrmReceivablesPlanService {
             }
             return crmReceivablesPlan.save() ? R.ok() : R.error();
         } else {
-            Integer number = Db.queryInt("select count(*) from 72crm_crm_receivables where plan_id = ?",crmReceivablesPlan.getPlanId());
+            Integer number = Db.queryInt("select count(*) from wms_crm_receivables where plan_id = ?",crmReceivablesPlan.getPlanId());
             if (number > 0 ){
                 return R.error("该回款计划已收到回款，请勿编辑");
             }
@@ -60,7 +60,7 @@ public class CrmReceivablesPlanService {
         String[] idsArr = planIds.split(",");
         List<Record> idsList = new ArrayList<>();
         for (String id : idsArr) {
-            Integer number = Db.queryInt("select count(*) from 72crm_crm_receivables where plan_id = ?",id);
+            Integer number = Db.queryInt("select count(*) from wms_crm_receivables where plan_id = ?",id);
             if (number > 0 ){
                 return R.error("该回款计划已关联回款，禁止删除");
             }

@@ -198,7 +198,7 @@ public class AdminExamineRecordService {
                 examineLog.setExamineStepId(examineStep.getStepId());
                 examineLog.setOrderId(examineStep.getStepNum());
             } else {
-                Integer orderId = Db.queryInt("select order_id from 72crm_admin_examine_log where record_id = ? and is_recheck = 0 and examine_status !=0 order by order_id desc limit 1 ", recordId);
+                Integer orderId = Db.queryInt("select order_id from wms_admin_examine_log where record_id = ? and is_recheck = 0 and examine_status !=0 order by order_id desc limit 1 ", recordId);
                 if (orderId == null) {
                     orderId = 1;
                 }
@@ -463,7 +463,7 @@ public class AdminExamineRecordService {
         } else {
             jsonObject.put("examineType", 1);
             //固定审批
-            List<Record> steps = Db.find("select * from 72crm_admin_examine_step where  examine_id = ? ORDER BY step_num", adminExamine.getExamineId());
+            List<Record> steps = Db.find("select * from wms_admin_examine_step where  examine_id = ? ORDER BY step_num", adminExamine.getExamineId());
 
             steps.forEach(step -> {
                 if (step.getInt("step_type") == 1) {

@@ -51,7 +51,7 @@ public class OaLogService {
         Kv kv = Kv.by("by", by);
         List<Long> userIds;
         if(user.getRoles().contains(BaseConstant.SUPER_ADMIN_ROLE_ID)){
-            userIds = Db.query("SELECT user_id FROM `72crm_admin_user` where user_id != ? ",user.getUserId());
+            userIds = Db.query("SELECT user_id FROM `wms_admin_user` where user_id != ? ",user.getUserId());
         }else {
             userIds = new AdminUserService().queryUserByParentUser(user.getUserId(), BaseConstant.AUTH_DATA_RECURSION_NUM);
             if (object.containsKey("createUserId")) {
@@ -138,7 +138,7 @@ public class OaLogService {
             oaActionRecordService.addRecord(oaLog.getLogId(), OaEnum.LOG_TYPE_KEY.getTypes(), 1, oaActionRecordService.getJoinIds(user.getUserId().intValue(), oaLog.getSendUserIds()),  oaLog.getSendDeptIds());
         }
         if (oaLogRelation != null) {
-            Db.deleteById("72crm_oa_log_relation", "log_id", oaLog.getLogId());
+            Db.deleteById("wms_oa_log_relation", "log_id", oaLog.getLogId());
             oaLogRelation.setLogId(oaLog.getLogId());
             oaLogRelation.setBusinessIds(TagUtil.fromString(oaLogRelation.getBusinessIds()));
             oaLogRelation.setContactsIds(TagUtil.fromString(oaLogRelation.getContactsIds()));
@@ -174,9 +174,9 @@ public class OaLogService {
         OaLog oaLog = OaLog.dao.findById(logId);
         if (oaLog != null) {
             oaActionRecordService.deleteRecord(OaEnum.LOG_TYPE_KEY.getTypes(), logId);
-            Db.deleteById("72crm_oa_log_relation", "log_id", logId);
+            Db.deleteById("wms_oa_log_relation", "log_id", logId);
             adminFileService.removeByBatchId(oaLog.getBatchId());
-            Db.deleteById("72crm_oa_log","log_id",logId);
+            Db.deleteById("wms_oa_log","log_id",logId);
             return true;
         }
         return false;

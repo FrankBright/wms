@@ -52,14 +52,14 @@ public class CrmReceivablesService {
      */
     public List<CrmReceivables> queryListByUserId(Integer userId) {
         CrmReceivables crmReceivables = new CrmReceivables();
-        String sql = "select re.receivables_id,re.contract_id,c.`name`,r.check_time,r.check_user_id,u.username,re.check_status from 72crm_crm_receivables re"
-                + "left join 72crm_crm_contract c"
+        String sql = "select re.receivables_id,re.contract_id,c.`name`,r.check_time,r.check_user_id,u.username,re.check_status from wms_crm_receivables re"
+                + "left join wms_crm_contract c"
                 + "on c.contract_id=re.contract_id"
-                + "left join 72crm_admin_examine_step s"
+                + "left join wms_admin_examine_step s"
                 + "on re.flow_id=s.flow_id and re.order_id=s.order_id"
-                + "left join 72crm_admin_examine_record r"
+                + "left join wms_admin_examine_record r"
                 + "on s.flow_id=r.flow_id and s.step_id=r.step_id"
-                + "left join 72crm_admin_user u"
+                + "left join wms_admin_user u"
                 + "on r.check_user_id=u.id"
                 + "where re.check_status=2 or re.check_status=3 and re.create_user_id=" + userId;
         return crmReceivables.find(sql);
@@ -177,7 +177,7 @@ public class CrmReceivablesService {
         for (String id : idsArr) {
                 CrmReceivables receivables = CrmReceivables.dao.findById(id);
             if (receivables != null) {
-                Db.delete("delete FROM 72crm_admin_fieldv where batch_id = ?",receivables.getBatchId());
+                Db.delete("delete FROM wms_admin_fieldv where batch_id = ?",receivables.getBatchId());
             }
             if (!CrmReceivables.dao.deleteById(id)){
                 return R.error();
@@ -205,7 +205,7 @@ public class CrmReceivablesService {
      * 根据条件查询回款
      */
     public List<Record> queryList(CrmReceivables receivables) {
-        String sq = "select * from 72crm_crm_receivables where 1 = 1 ";
+        String sq = "select * from wms_crm_receivables where 1 = 1 ";
         StringBuffer sql = new StringBuffer(sq);
         if (receivables.getCustomerId() != null) {
             sql.append(" and customer_id = ").append(receivables.getCustomerId());
@@ -220,7 +220,7 @@ public class CrmReceivablesService {
      * 根据条件查询回款
      */
     public List<Record> queryListByType(String type, Integer id) {
-        String sq = "select * from 72crm_crm_receivables where ";
+        String sq = "select * from wms_crm_receivables where ";
         StringBuffer sql = new StringBuffer(sq);
         if (type.equals(CrmEnum.CUSTOMER_TYPE_KEY.getTypes())) {
             sql.append("  customer_id = ? ");

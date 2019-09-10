@@ -4,8 +4,8 @@
       ccbs.`name`,
       ccbs.order_num,IFNULL(SUM(ccb.money),0) as money,
       ccb.type_id
-      FROM 72crm_crm_business as ccb
-      LEFT JOIN 72crm_crm_business_status as ccbs ON ccbs.status_id = ccb.status_id
+      FROM wms_crm_business as ccb
+      LEFT JOIN wms_crm_business_status as ccbs ON ccbs.status_id = ccb.status_id
       where
         ccbs.type_id = #para(typeId)
         and  ccb.owner_user_id in (#for(x:userIds)
@@ -50,8 +50,8 @@
     #end
     #sql ("sellFunnelSum")
       SELECT IFNULL(SUM(ccb.money),0) as money
-      FROM 72crm_crm_business as ccb
-      LEFT JOIN 72crm_crm_business_status as ccbs ON ccbs.status_id = ccb.status_id
+      FROM wms_crm_business as ccb
+      LEFT JOIN wms_crm_business_status as ccbs ON ccbs.status_id = ccb.status_id
       where
         ccbs.type_id = #para(typeId)
          and  ccb.owner_user_id in (#for(x:userIds)

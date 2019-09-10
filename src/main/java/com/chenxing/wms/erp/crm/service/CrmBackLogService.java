@@ -35,10 +35,10 @@ public class CrmBackLogService {
         Integer todayCustomer = Db.queryInt(Db.getSql("crm.backLog.todayCustomerNum"),userId);
         Integer followLeads = Db.queryInt(Db.getSql("crm.backLog.followLeadsNum"),userId);
         Integer followCustomer = Db.queryInt(Db.getSql("crm.backLog.followCustomerNum"),userId);
-        Integer config = Db.queryInt("select status from 72crm_admin_config where name = 'expiringContractDays'");
+        Integer config = Db.queryInt("select status from wms_admin_config where name = 'expiringContractDays'");
         Integer checkReceivables = Db.queryInt(Db.getSql("crm.backLog.checkReceivablesNum"),userId);
         Integer remindReceivablesPlan = Db.queryInt(Db.getSql("crm.backLog.remindReceivablesPlanNum"),userId);
-        AdminConfig adminConfig = AdminConfig.dao.findFirst("select * from 72crm_admin_config where name = 'expiringContractDays'");
+        AdminConfig adminConfig = AdminConfig.dao.findFirst("select * from wms_admin_config where name = 'expiringContractDays'");
         Integer endContract = 0;
         if (1 == adminConfig.getStatus()){
             endContract = Db.queryInt(Db.getSql("crm.backLog.endContractNum"),adminConfig.getValue(),userId);
@@ -64,11 +64,11 @@ public class CrmBackLogService {
         Integer isSub = jsonObject.getInteger("isSub");
         StringBuffer stringBuffer = new StringBuffer("from customerview as a where ");
         if (type == 1){
-            stringBuffer.append(" a.customer_id not in (IFNULL((select GROUP_CONCAT(types_id) from 72crm_admin_record where types = 'crm_customer' and to_days(create_time) = to_days(now())),0)) and to_days(a.next_time) = to_days(now())");
+            stringBuffer.append(" a.customer_id not in (IFNULL((select GROUP_CONCAT(types_id) from wms_admin_record where types = 'crm_customer' and to_days(create_time) = to_days(now())),0)) and to_days(a.next_time) = to_days(now())");
         }else if (type == 2){
-            stringBuffer.append(" a.customer_id not in (IFNULL((select GROUP_CONCAT(types_id) from 72crm_admin_record where types = 'crm_customer' and to_days(create_time) >= to_days(a.next_time)),0)) and to_days(a.next_time) < to_days(now())");
+            stringBuffer.append(" a.customer_id not in (IFNULL((select GROUP_CONCAT(types_id) from wms_admin_record where types = 'crm_customer' and to_days(create_time) >= to_days(a.next_time)),0)) and to_days(a.next_time) < to_days(now())");
         }else if (type == 3){
-            stringBuffer.append(" a.customer_id = any(select types_id from 72crm_admin_record where types = 'crm_customer' and to_days(create_time) = to_days(now())) and to_days(a.next_time) = to_days(now())");
+            stringBuffer.append(" a.customer_id = any(select types_id from wms_admin_record where types = 'crm_customer' and to_days(create_time) = to_days(now())) and to_days(a.next_time) = to_days(now())");
         }else {
             return R.error("type类型不正确");
         }
@@ -185,7 +185,7 @@ public class CrmBackLogService {
         JSONObject jsonObject = basePageRequest.getJsonObject();
         Integer type = jsonObject.getInteger("type");
         Integer isSub = jsonObject.getInteger("isSub");
-        StringBuffer stringBuffer = new StringBuffer("select contract_id from 72crm_crm_contract as a inner join 72crm_admin_examine_record as b on a.examine_record_id = b.record_id left join 72crm_admin_examine_log as c on b.record_id = c.record_id where c.is_recheck != 1 and ifnull(b.examine_step_id, 1) = ifnull(c.examine_step_id, 1) and");
+        StringBuffer stringBuffer = new StringBuffer("select contract_id from wms_crm_contract as a inner join wms_admin_examine_record as b on a.examine_record_id = b.record_id left join wms_admin_examine_log as c on b.record_id = c.record_id where c.is_recheck != 1 and ifnull(b.examine_step_id, 1) = ifnull(c.examine_step_id, 1) and");
         if (type == 1){
             stringBuffer.append(" a.check_status in (0,1)");
         }else if (type == 2){
@@ -224,7 +224,7 @@ public class CrmBackLogService {
         JSONObject jsonObject = basePageRequest.getJsonObject();
         Integer type = jsonObject.getInteger("type");
         Integer isSub = jsonObject.getInteger("isSub");
-        StringBuilder stringBuffer = new StringBuilder("select receivables_id from 72crm_crm_receivables as a inner join 72crm_admin_examine_record as b on a.examine_record_id = b.record_id left join 72crm_admin_examine_log as c on b.record_id = c.record_id where ifnull(b.examine_step_id, 1) = ifnull(c.examine_step_id, 1) and");
+        StringBuilder stringBuffer = new StringBuilder("select receivables_id from wms_crm_receivables as a inner join wms_admin_examine_record as b on a.examine_record_id = b.record_id left join wms_admin_examine_log as c on b.record_id = c.record_id where ifnull(b.examine_step_id, 1) = ifnull(c.examine_step_id, 1) and");
         if (type == 1){
             stringBuffer.append(" a.check_status in (0,1)");
         }else if (type == 2){
@@ -263,7 +263,7 @@ public class CrmBackLogService {
         JSONObject jsonObject = basePageRequest.getJsonObject();
         Integer type = jsonObject.getInteger("type");
         Integer isSub = jsonObject.getInteger("isSub");
-        StringBuffer stringBuffer = new StringBuffer("from 72crm_crm_receivables_plan as a inner join 72crm_crm_customer as b on a.customer_id = b.customer_id inner join 72crm_crm_contract as c on a.contract_id = c.contract_id where");
+        StringBuffer stringBuffer = new StringBuffer("from wms_crm_receivables_plan as a inner join wms_crm_customer as b on a.customer_id = b.customer_id inner join wms_crm_contract as c on a.contract_id = c.contract_id where");
         if (type == 1){
             stringBuffer.append(" to_days(a.return_date) >= to_days(now()) and to_days(a.return_date) <= to_days(now())+a.remind and receivables_id is null");
         }else if (type == 2){
@@ -299,7 +299,7 @@ public class CrmBackLogService {
         JSONObject jsonObject = basePageRequest.getJsonObject();
         Integer type = jsonObject.getInteger("type");
         Integer isSub = jsonObject.getInteger("isSub");
-        AdminConfig adminConfig = AdminConfig.dao.findFirst("select * from 72crm_admin_config where name = 'expiringContractDays'");
+        AdminConfig adminConfig = AdminConfig.dao.findFirst("select * from wms_admin_config where name = 'expiringContractDays'");
         StringBuffer stringBuffer = new StringBuffer("from contractview as a where");
         if (type == 1){
             if (adminConfig.getStatus() == 0 || ObjectUtil.isNull(adminConfig)){

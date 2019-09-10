@@ -63,7 +63,7 @@ public class AdminRoleService {
      * 新建
      */
     public R save(AdminRole adminRole) {
-        Integer number = Db.queryInt("select count(*) from 72crm_admin_role where role_name = ? and role_type = ?", adminRole.getRoleName(), adminRole.getRoleType());
+        Integer number = Db.queryInt("select count(*) from wms_admin_role where role_name = ? and role_type = ?", adminRole.getRoleName(), adminRole.getRoleType());
         if (number > 0) {
             return R.error("角色名已存在");
         }
@@ -162,7 +162,7 @@ public class AdminRoleService {
      * 删除
      */
     public boolean delete(Integer roleId) {
-        Record record = Db.findFirst("select count(*) as menuNum from 72crm_admin_role_menu where role_id = ?", roleId);
+        Record record = Db.findFirst("select count(*) as menuNum from wms_admin_role_menu where role_id = ?", roleId);
         if (record.getInt("menuNum") == 0) {
             return Db.delete(Db.getSql("admin.role.deleteRole"), roleId) > 0;
         }
@@ -181,7 +181,7 @@ public class AdminRoleService {
     public boolean deleteWorkRole(Integer roleId) {
         Db.delete(Db.getSql("admin.role.deleteRole"), roleId);
         Db.delete(Db.getSql("admin.role.deleteRoleMenu"), roleId);
-        Db.update("update `72crm_work_user` set role_id = ? where role_id = ?",BaseConstant.SMALL_WORK_EDIT_ROLE_ID,roleId);
+        Db.update("update `wms_work_user` set role_id = ? where role_id = ?",BaseConstant.SMALL_WORK_EDIT_ROLE_ID,roleId);
         return true;
     }
 
@@ -202,9 +202,9 @@ public class AdminRoleService {
         String pre = ReUtil.delFirst("[(]\\d+[)]$", roleName);
         List<AdminRole> adminRoleList;
         if (!ReUtil.contains("^[(]\\d+[)]$", roleName)) {
-            adminRoleList = AdminRole.dao.find("select * from 72crm_admin_role where role_name like '" + pre + "%'");
+            adminRoleList = AdminRole.dao.find("select * from wms_admin_role where role_name like '" + pre + "%'");
         } else {
-            adminRoleList = AdminRole.dao.find("select * from 72crm_admin_role where role_name regexp '^[(]\\d+[)]$'");
+            adminRoleList = AdminRole.dao.find("select * from wms_admin_role where role_name regexp '^[(]\\d+[)]$'");
         }
         StringBuffer numberSb = new StringBuffer();
         for (AdminRole dbAdminRole : adminRoleList) {
@@ -237,7 +237,7 @@ public class AdminRoleService {
             String[] roleIdsArr = adminUserRole.getRoleIds().split(",");
             for (String userId : userIdsArr) {
                 for (String roleId : roleIdsArr) {
-                    Db.delete("delete from 72crm_admin_user_role where user_id = ? and role_id = ?", Integer.valueOf(userId), Integer.valueOf(roleId));
+                    Db.delete("delete from wms_admin_user_role where user_id = ? and role_id = ?", Integer.valueOf(userId), Integer.valueOf(roleId));
                     AdminUserRole userRole = new AdminUserRole();
                     userRole.setUserId(Long.valueOf(userId));
                     userRole.setRoleId(Integer.valueOf(roleId));
@@ -258,7 +258,7 @@ public class AdminRoleService {
         if (adminUserRole.getUserId().equals(BaseConstant.SUPER_ADMIN_USER_ID)) {
             return R.error("超级管理员不可被更改");
         }
-        return Db.delete("delete from 72crm_admin_user_role where user_id = ? and role_id = ?", adminUserRole.getUserId(), adminUserRole.getRoleId()) > 0 ? R.ok() : R.error();
+        return Db.delete("delete from wms_admin_user_role where user_id = ? and role_id = ?", adminUserRole.getUserId(), adminUserRole.getRoleId()) > 0 ? R.ok() : R.error();
     }
 
     public List<Integer> queryRoleIdsByUserId(Long userId) {
@@ -300,9 +300,9 @@ public class AdminRoleService {
      * @author wyq
      */
     public R queryProjectRoleList(){
-        List<Record> roleList = Db.find("select * from 72crm_admin_role where role_type in (5,6) and is_hidden = 1");
+        List<Record> roleList = Db.find("select * from wms_admin_role where role_type in (5,6) and is_hidden = 1");
         roleList.forEach(record -> {
-            List<Integer> rules = Db.query("select menu_id from 72crm_admin_role_menu where role_id = ?",record.getInt("role_id"));
+            List<Integer> rules = Db.query("select menu_id from wms_admin_role_menu where role_id = ?",record.getInt("role_id"));
             record.set("rules",rules);
         });
         return R.ok().put("data",roleList);
@@ -322,7 +322,7 @@ public class AdminRoleService {
             bol = adminRole.save();
         }else {
             adminRole.setRoleId(roleId);
-            Db.delete("delete from `72crm_admin_role_menu` where role_id = ?",roleId);
+            Db.delete("delete from `wms_admin_role_menu` where role_id = ?",roleId);
             bol = adminRole.update();
         }
         rules.forEach(menuId->{

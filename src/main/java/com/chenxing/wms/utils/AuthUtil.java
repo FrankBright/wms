@@ -26,27 +26,27 @@ public class AuthUtil {
         Map<String,String> tableParaMap = new HashMap<>();
         switch(urlPrefix){
             case "CrmCustomer":
-                tableParaMap.put("tableName", "72crm_crm_customer");
+                tableParaMap.put("tableName", "wms_crm_customer");
                 tableParaMap.put("tableId", "customer_id");
                 break;
             case "CrmLeads":
-                tableParaMap.put("tableName", "72crm_crm_leads");
+                tableParaMap.put("tableName", "wms_crm_leads");
                 tableParaMap.put("tableId", "leads_id");
                 break;
             case "CrmContract":
-                tableParaMap.put("tableName", "72crm_crm_contract");
+                tableParaMap.put("tableName", "wms_crm_contract");
                 tableParaMap.put("tableId", "contract_id");
                 break;
             case "CrmContacts":
-                tableParaMap.put("tableName", "72crm_crm_contacts");
+                tableParaMap.put("tableName", "wms_crm_contacts");
                 tableParaMap.put("tableId", "contacts_id");
                 break;
             case "CrmBusiness":
-                tableParaMap.put("tableName", "72crm_crm_business");
+                tableParaMap.put("tableName", "wms_crm_business");
                 tableParaMap.put("tableId", "business_id");
                 break;
             case "CrmReceivables":
-                tableParaMap.put("tableName", "72crm_crm_receivables");
+                tableParaMap.put("tableName", "wms_crm_receivables");
                 tableParaMap.put("tableId", "receivables_id");
                 break;
             default:
@@ -65,7 +65,7 @@ public class AuthUtil {
         authSql.append(tablePara.get("tableName")).append(" where ").append(tablePara.get("tableId")).append(" = ").append(id);
         if(longs != null && longs.size() > 0){
             authSql.append(" and owner_user_id in (").append(StrUtil.join(",", longs)).append(")");
-            if("72crm_crm_customer".equals(tablePara.get("tableName")) || "72crm_crm_business".equals(tablePara.get("tableName")) || "72crm_crm_contract".equals(tablePara.get("tableName"))){
+            if("wms_crm_customer".equals(tablePara.get("tableName")) || "wms_crm_business".equals(tablePara.get("tableName")) || "wms_crm_contract".equals(tablePara.get("tableName"))){
                 authSql.append(" or ro_user_id like CONCAT('%,','").append(userId).append("',',%')").append(" or rw_user_id like CONCAT('%,','").append(userId).append("',',%')");
             }
         }
@@ -99,11 +99,11 @@ public class AuthUtil {
             return false;
         }
         if(tablePara == null){
-            List<Long> userIds = Db.query("select create_user_id from `72crm_oa_examine` where examine_id = ? union all select b.examine_user from `72crm_oa_examine_record` as a left join `72crm_oa_examine_log` b on a.record_id = b.record_id where a.examine_id = ?", id, id);
+            List<Long> userIds = Db.query("select create_user_id from `wms_oa_examine` where examine_id = ? union all select b.examine_user from `wms_oa_examine_record` as a left join `wms_oa_examine_log` b on a.record_id = b.record_id where a.examine_id = ?", id, id);
             return ! userIds.contains(userId);
         }
         StringBuilder authSql = new StringBuilder("select count(*) from  ");
-        if(!"72crm_task".equals(tablePara.get("tableName"))){
+        if(!"wms_task".equals(tablePara.get("tableName"))){
             authSql.append(tablePara.get("tableName")).append(" where ").append(tablePara.get("tableId")).append(" = ").append(id).append(" and create_user_id = ").append(userId);
         }else {
             List<Long> childIdList = Aop.get(AdminUserService.class).queryChileUserIds(userId, 20);
@@ -125,23 +125,23 @@ public class AuthUtil {
         Map<String,String> tableParaMap = new HashMap<>();
         switch(type){
             case 1:
-                tableParaMap.put("tableName", "72crm_oa_log");
+                tableParaMap.put("tableName", "wms_oa_log");
                 tableParaMap.put("tableId", "log_id");
                 break;
             case 2:
-                tableParaMap.put("tableName", "72crm_oa_event");
+                tableParaMap.put("tableName", "wms_oa_event");
                 tableParaMap.put("tableId", "event_id");
                 break;
             case 3:
-                tableParaMap.put("tableName", "72crm_oa_announcement");
+                tableParaMap.put("tableName", "wms_oa_announcement");
                 tableParaMap.put("tableId", "announcement_id");
                 break;
             case 4:
-                tableParaMap.put("tableName", "72crm_task");
+                tableParaMap.put("tableName", "wms_task");
                 tableParaMap.put("tableId", "task_id");
                 break;
             case 5:
-                tableParaMap.put("tableName", "72crm_oa_examine");
+                tableParaMap.put("tableName", "wms_oa_examine");
                 tableParaMap.put("tableId", "examine_id");
                 break;
             default:
@@ -161,7 +161,7 @@ public class AuthUtil {
 
     public static  boolean isWorkAuth(String workId,String realm){
         AdminUser user = BaseUtil.getUser();
-        Integer roleId = Db.queryInt("select role_id from `72crm_work_user` where work_id = ? and user_id = ?", workId, user.getUserId());
+        Integer roleId = Db.queryInt("select role_id from `wms_work_user` where work_id = ? and user_id = ?", workId, user.getUserId());
         //判断是否是超级管理员、项目管理员
         if(user.getUserId().equals(BaseConstant.SUPER_ADMIN_USER_ID) || user.getRoles().contains(BaseConstant.SUPER_ADMIN_ROLE_ID) ||user.getRoles().contains(BaseConstant.WORK_ADMIN_ROLE_ID) || (roleId != null&&roleId.equals(BaseConstant.SMALL_WORK_ADMIN_ROLE_ID))){
             return true;

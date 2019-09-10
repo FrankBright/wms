@@ -111,7 +111,7 @@ public class CrmContractService {
         for (String id : idsArr) {
             CrmContract contract = CrmContract.dao.findById(id);
             if (contract != null) {
-                Db.delete("delete FROM 72crm_admin_fieldv where batch_id = ?", contract.getBatchId());
+                Db.delete("delete FROM wms_admin_fieldv where batch_id = ?", contract.getBatchId());
             }
             if (!CrmContract.dao.deleteById(id)){
                 return R.error();
@@ -175,7 +175,7 @@ public class CrmContractService {
             //删除之前的合同产品关联表
             Db.delete(Db.getSql("crm.contract.deleteByContractId"), crmContract.getContractId());
             if (crmContract.getBusinessId() != null){
-                Db.delete("delete from 72crm_crm_business_product where business_id = ?",crmContract.getBusinessId());
+                Db.delete("delete from wms_crm_business_product where business_id = ?",crmContract.getBusinessId());
             }
             if (contractProductList != null) {
                 for (CrmContractProduct crmContractProduct : contractProductList) {
@@ -200,7 +200,7 @@ public class CrmContractService {
      * 根据条件查询合同
      */
     public List<CrmContract> queryList(CrmContract crmContract) {
-        StringBuilder sql = new StringBuilder("select * from 72crm_crm_contract where 1 = 1 ");
+        StringBuilder sql = new StringBuilder("select * from wms_crm_contract where 1 = 1 ");
         if (crmContract.getCustomerId() != null) {
             sql.append(" and  customer_id = ").append(crmContract.getCustomerId());
         }
@@ -265,7 +265,7 @@ public class CrmContractService {
         crmContract.setNewOwnerUserId(crmCustomer.getNewOwnerUserId());
         crmContract.setTransferType(crmCustomer.getTransferType());
         crmContract.setPower(crmCustomer.getPower());
-        String contractIds = Db.queryStr("select GROUP_CONCAT(contract_id) from 72crm_crm_contract where customer_id in ("+crmCustomer.getCustomerIds()+")");
+        String contractIds = Db.queryStr("select GROUP_CONCAT(contract_id) from wms_crm_contract where customer_id in ("+crmCustomer.getCustomerIds()+")");
         if (StrUtil.isEmpty(contractIds)){
             return R.ok();
         }
@@ -353,12 +353,12 @@ public class CrmContractService {
             if (1 == crmContract.getPower()) {
                 stringBuilder.setLength(0);
                 String roUserId = stringBuilder.append(CrmContract.dao.findById(Integer.valueOf(id)).getRoUserId()).append(crmContract.getMemberIds()).append(",").toString();
-                Db.update("update 72crm_crm_contract set ro_user_id = ? where contract_id = ?", roUserId, Integer.valueOf(id));
+                Db.update("update wms_crm_contract set ro_user_id = ? where contract_id = ?", roUserId, Integer.valueOf(id));
             }
             if (2 == crmContract.getPower()) {
                 stringBuilder.setLength(0);
                 String rwUserId = stringBuilder.append(CrmContract.dao.findById(Integer.valueOf(id)).getRwUserId()).append(crmContract.getMemberIds()).append(",").toString();
-                Db.update("update 72crm_crm_contract set rw_user_id = ? where contract_id = ?", rwUserId, Integer.valueOf(id));
+                Db.update("update wms_crm_contract set rw_user_id = ? where contract_id = ?", rwUserId, Integer.valueOf(id));
             }
         }
         return R.ok();
@@ -483,7 +483,7 @@ public class CrmContractService {
      * 查询合同到期提醒设置
      */
     public R queryContractConfig(){
-        AdminConfig config = AdminConfig.dao.findFirst("select status,value as contractDay from 72crm_admin_config where name = 'expiringContractDays' limit 1");
+        AdminConfig config = AdminConfig.dao.findFirst("select status,value as contractDay from wms_admin_config where name = 'expiringContractDays' limit 1");
         if (config == null){
             config = new AdminConfig();
             config.setStatus(0);

@@ -216,7 +216,7 @@ public class CrmProductController extends Controller {
         titleRow.getCell(0).setCellStyle(cellStyle);
         CellRangeAddress region = new CellRangeAddress(0,0 , 0, recordList.size()-1);
         sheet.addMergedRegion(region);
-        List<String> categoryList = Db.query("select name from 72crm_crm_product_category");
+        List<String> categoryList = Db.query("select name from wms_crm_product_category");
         try {
             HSSFRow row = sheet.createRow(1);
             for (int i = 0; i < recordList.size(); i++) {

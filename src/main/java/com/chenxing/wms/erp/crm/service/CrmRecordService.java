@@ -131,7 +131,7 @@ public class CrmRecordService<T> {
         if (jsonArray == null) {
             return;
         }
-        List<AdminFieldv> oldFieldList = new AdminFieldv().dao().find("select * from 72crm_admin_fieldv where batch_id = ?", batchId);
+        List<AdminFieldv> oldFieldList = new AdminFieldv().dao().find("select * from wms_admin_fieldv where batch_id = ?", batchId);
         oldFieldList.forEach(oldField -> {
             jsonArray.forEach(json -> {
                 AdminFieldv newField = TypeUtils.castToJavaBean(json, AdminFieldv.class);
@@ -181,7 +181,7 @@ public class CrmRecordService<T> {
     }
 
     public R queryRecordList(String actionId, String crmTypes) {
-        List<Record> recordList = Db.find("select a.*,b.realname,b.img from 72crm_crm_action_record a left join 72crm_admin_user b on a.create_user_id = b.user_id where action_id = ? and types = ? order by create_time desc", actionId, crmTypes);
+        List<Record> recordList = Db.find("select a.*,b.realname,b.img from wms_crm_action_record a left join wms_admin_user b on a.create_user_id = b.user_id where action_id = ? and types = ? order by create_time desc", actionId, crmTypes);
         recordList.forEach(record -> {
             List<String> list = JSON.parseArray(record.getStr("content"), String.class);
             record.set("content", list);
@@ -196,7 +196,7 @@ public class CrmRecordService<T> {
      * @param crmTypes
      */
     public void addConversionRecord(Integer actionId, String crmTypes, Integer userId) {
-        String name = Db.queryStr("select realname from 72crm_admin_user where user_id = ?", userId);
+        String name = Db.queryStr("select realname from wms_admin_user where user_id = ?", userId);
         CrmActionRecord crmActionRecord = new CrmActionRecord();
         crmActionRecord.setCreateUserId(BaseUtil.getUser().getUserId().intValue());
         crmActionRecord.setCreateTime(new Date());
@@ -284,7 +284,7 @@ public class CrmRecordService<T> {
                 continue;
             }
             ArrayList<String> strings = new ArrayList<>();
-            String name = Db.queryStr("select realname from 72crm_admin_user where user_id = ?", userId);
+            String name = Db.queryStr("select realname from wms_admin_user where user_id = ?", userId);
             CrmActionRecord crmActionRecord = new CrmActionRecord();
             crmActionRecord.setCreateUserId(BaseUtil.getUser().getUserId().intValue());
             crmActionRecord.setCreateTime(new Date());
@@ -316,7 +316,7 @@ public class CrmRecordService<T> {
      * 查询跟进记录类型
      */
     public R queryRecordOptions(){
-        List<String> list = Db.query("select value from 72crm_admin_config where name = 'followRecordOption'");
+        List<String> list = Db.query("select value from wms_admin_config where name = 'followRecordOption'");
         return R.ok().put("data",list);
     }
 
@@ -326,7 +326,7 @@ public class CrmRecordService<T> {
      */
     @Before(Tx.class)
     public R setRecordOptions(List<String> list){
-        Db.delete("delete from 72crm_admin_config where name = 'followRecordOption'");
+        Db.delete("delete from wms_admin_config where name = 'followRecordOption'");
         List<AdminConfig> adminConfigList = new ArrayList<>();
         for(int i=0;i<list.size();i++){
             AdminConfig adminConfig = new AdminConfig();

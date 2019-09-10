@@ -185,7 +185,7 @@ public class AdminSceneService {
         Long userId = BaseUtil.getUser().getUserId();
         AdminScene oldAdminScene = AdminScene.dao.findById(adminScene.getSceneId());
         if (1 == adminScene.getIsDefault()) {
-            Db.update("update 72crm_admin_scene_default set scene_id = ? where user_id = ? and type = ?", adminScene.getSceneId(), userId, oldAdminScene.getType());
+            Db.update("update wms_admin_scene_default set scene_id = ? where user_id = ? and type = ?", adminScene.getSceneId(), userId, oldAdminScene.getType());
         }
         adminScene.setUserId(userId).setType(oldAdminScene.getType()).setSort(oldAdminScene.getSort()).setIsSystem(oldAdminScene.getIsSystem()).setUpdateTime(DateUtil.date());
         return R.isSuccess(adminScene.update());
@@ -199,7 +199,7 @@ public class AdminSceneService {
     public R setDefaultScene(Integer sceneId) {
         Long userId = BaseUtil.getUser().getUserId();
         AdminScene oldAdminScene = AdminScene.dao.findById(sceneId);
-        Db.delete("delete from 72crm_admin_scene_default where user_id = ? and type = ?", userId, oldAdminScene.getType());
+        Db.delete("delete from wms_admin_scene_default where user_id = ? and type = ?", userId, oldAdminScene.getType());
         AdminSceneDefault adminSceneDefault = new AdminSceneDefault();
         return adminSceneDefault.setSceneId(sceneId).setType(oldAdminScene.getType()).setUserId(userId).save() ? R.ok() : R.error();
     }
@@ -286,7 +286,7 @@ public class AdminSceneService {
     public String getSubUserId(Integer userId,Integer deepness) {
         StringBuilder ids = new StringBuilder();
         if (deepness > 0){
-            List<Long> list = Db.query("select user_id from 72crm_admin_user where parent_id = ?", userId);
+            List<Long> list = Db.query("select user_id from wms_admin_user where parent_id = ?", userId);
             if (list != null && list.size() > 0) {
                 for (Long l : list) {
                     ids.append(",").append(l).append(getSubUserId(l.intValue(),deepness -1));
@@ -544,18 +544,18 @@ public class AdminSceneService {
             return R.ok().put("data", Db.find("select * " + conditions.toString()));
         }
         if (2 == type || 8 == type) {
-            Integer configType = Db.queryInt("select status from 72crm_admin_config where name = 'customerPoolSetting'");
+            Integer configType = Db.queryInt("select status from wms_admin_config where name = 'customerPoolSetting'");
             if (1 == configType && 2 == type) {
                 return R.ok().put("data", Db.paginate(basePageRequest.getPage(), basePageRequest.getLimit(),Db.getSql("admin.scene.getCustomerPageList"),conditions.toString()));
             } else {
-                return R.ok().put("data", Db.paginate(basePageRequest.getPage(), basePageRequest.getLimit(),"select *,(select count(*) from 72crm_crm_business as a where a.customer_id = " + viewName + ".customer_id) as business_count",conditions.toString()));
+                return R.ok().put("data", Db.paginate(basePageRequest.getPage(), basePageRequest.getLimit(),"select *,(select count(*) from wms_crm_business as a where a.customer_id = " + viewName + ".customer_id) as business_count",conditions.toString()));
             }
 
         }else if (6 == type){
             Record totalMoney = Db.findFirst("select SUM(money) as contractMoney,GROUP_CONCAT(contract_id) as contractIds "+conditions.toString());
-            Page<Record> page = Db.paginate(basePageRequest.getPage(), basePageRequest.getLimit(),"select *,IFNULL((select SUM(a.money) from 72crm_crm_receivables as a where a.contract_id = contractview.contract_id),0) as receivedMoney",conditions.toString());
+            Page<Record> page = Db.paginate(basePageRequest.getPage(), basePageRequest.getLimit(),"select *,IFNULL((select SUM(a.money) from wms_crm_receivables as a where a.contract_id = contractview.contract_id),0) as receivedMoney",conditions.toString());
 
-            String receivedMoney = Db.queryStr("select SUM(money) from 72crm_crm_receivables where receivables_id in ("+totalMoney.getStr("contractIds")+")");
+            String receivedMoney = Db.queryStr("select SUM(money) from wms_crm_receivables where receivables_id in ("+totalMoney.getStr("contractIds")+")");
             JSONObject jsonObject = JSONObject.parseObject(Json.getJson().toJson(page),JSONObject.class);
             return R.ok().put("data",jsonObject.fluentPut("money",new JSONObject().fluentPut("contractMoney",totalMoney.getStr("contractMoney")!=null?totalMoney.getStr("contractMoney"):"0").fluentPut("receivedMoney",receivedMoney!=null?receivedMoney:"0")));
         }
@@ -578,17 +578,17 @@ public class AdminSceneService {
     public void setBusinessStatus(List<Record> list){
         list.forEach(record -> {
                     if (record.getInt("is_end") == 0){
-                        Integer sortNum = Db.queryInt("select order_num from 72crm_crm_business_status where status_id = ?",record.getInt("status_id"));
-                        int totalStatsNum = Db.queryInt("select count(*) from 72crm_crm_business_status where type_id = ?",record.getInt("type_id")) + 1;
+                        Integer sortNum = Db.queryInt("select order_num from wms_crm_business_status where status_id = ?",record.getInt("status_id"));
+                        int totalStatsNum = Db.queryInt("select count(*) from wms_crm_business_status where type_id = ?",record.getInt("type_id")) + 1;
                         if(sortNum == null){
                             sortNum = 0;
                         }
                         record.set("progressBar",sortNum+"/"+totalStatsNum);
                     }else if (record.getInt("is_end") == 1){
-                        int totalStatsNum = Db.queryInt("select count(*) from 72crm_crm_business_status where type_id = ?",record.getInt("type_id")) + 1;
+                        int totalStatsNum = Db.queryInt("select count(*) from wms_crm_business_status where type_id = ?",record.getInt("type_id")) + 1;
                         record.set("progressBar",totalStatsNum+"/"+totalStatsNum);
                     }else if (record.getInt("is_end") == 2){
-                        int totalStatsNum = Db.queryInt("select count(*) from 72crm_crm_business_status where type_id = ?",record.getInt("type_id")) + 1;
+                        int totalStatsNum = Db.queryInt("select count(*) from wms_crm_business_status where type_id = ?",record.getInt("type_id")) + 1;
                         record.set("progressBar","0/"+totalStatsNum);
                     }else if (record.getInt("is_end") == 3){
                         record.set("progressBar","0/0");

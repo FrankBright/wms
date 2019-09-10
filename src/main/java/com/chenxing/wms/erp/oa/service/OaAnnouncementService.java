@@ -93,8 +93,8 @@ public class OaAnnouncementService {
         String tatal = "select count(*)";
         String queryList = "select an.* , us.user_id,us.username,us.img,us.realname,us.parent_id ,LEFT(an.start_time,10) as startTime,LEFT(an.end_time,10) as endTime ";
 
-        StringBuffer sql = new StringBuffer(" from 72crm_oa_announcement as an " +
-                " LEFT JOIN 72crm_admin_user as us on us.user_id = create_user_id");
+        StringBuffer sql = new StringBuffer(" from wms_oa_announcement as an " +
+                " LEFT JOIN wms_admin_user as us on us.user_id = create_user_id");
         if (type != null && type == 2){
             sql.append(" WHERE (unix_timestamp(now()) - unix_timestamp(an.end_time)) > 0 ");
         }else {

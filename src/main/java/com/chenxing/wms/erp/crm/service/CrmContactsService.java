@@ -140,7 +140,7 @@ public class CrmContactsService {
     @Before(Tx.class)
     public R relateBusiness(Integer contactsId, String businessIds){
         String[] businessIdsArr = businessIds.split(",");
-        Db.delete("delete from 72crm_crm_contacts_business where contacts_id = ?",contactsId);
+        Db.delete("delete from wms_crm_contacts_business where contacts_id = ?",contactsId);
         List<CrmContactsBusiness> crmContactsBusinessList = new ArrayList<>();
         for (String id:businessIdsArr){
             CrmContactsBusiness crmContactsBusiness = new CrmContactsBusiness();
@@ -205,7 +205,7 @@ public class CrmContactsService {
         List<Record> batchIdList = Db.find(Db.getSqlPara("crm.contact.queryBatchIdByIds",Kv.by("ids",idsArr)));
         return Db.tx(() ->{
             Db.batch(Db.getSql("crm.contact.deleteByIds"),"contacts_id",idsList,100);
-            Db.batch("delete from 72crm_admin_fieldv where batch_id = ?","batch_id",batchIdList,100);
+            Db.batch("delete from wms_admin_fieldv where batch_id = ?","batch_id",batchIdList,100);
             return true;
         }) ? R.ok() : R.error();
     }
@@ -229,7 +229,7 @@ public class CrmContactsService {
      * @param ownerUserId 负责人ID
      */
     public boolean updateOwnerUserId(Integer customerId,Integer ownerUserId){
-        Db.update("update 72crm_crm_contacts set owner_user_id = " + ownerUserId + " where customer_id = "+customerId);
+        Db.update("update wms_crm_contacts set owner_user_id = " + ownerUserId + " where customer_id = "+customerId);
         crmRecordService.addConversionRecord(customerId,CrmEnum.CUSTOMER_TYPE_KEY.getTypes(),ownerUserId);
         return true;
     }
@@ -378,7 +378,7 @@ public class CrmContactsService {
                     }
                     Record  repeatField= Db.findFirst(Db.getSqlPara("crm.contact.queryRepeatFieldNumber",Kv.by("contactsName",contactsName).set("telephone",telephone).set("mobile",mobile)));
                     Integer number = repeatField.getInt("number");
-                    Integer customerId = Db.queryInt("select customer_id from 72crm_crm_customer where customer_name = ?",contactsList.get(kv.getInt("customer_id")));
+                    Integer customerId = Db.queryInt("select customer_id from wms_crm_customer where customer_name = ?",contactsList.get(kv.getInt("customer_id")));
                     if (customerId == null){
                         return R.error("第"+errNum+1+"行填写的客户不存在");
                     }

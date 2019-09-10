@@ -39,7 +39,7 @@ public class AdminMenuController extends Controller {
      */
     @Permissions("manage:permission")
     public void getWorkMenuList(){
-        Integer workMenuId = Db.queryInt("select menu_id from `72crm_admin_menu` where parent_id = 0 and realm = 'work'");
+        Integer workMenuId = Db.queryInt("select menu_id from `wms_admin_menu` where parent_id = 0 and realm = 'work'");
         AdminMenu root = new AdminMenu().findById(workMenuId);
         root.put("childMenu",adminMenuService.getWorkMenuList(root.getMenuId(),20));
         renderJson(R.ok().put("data",root));

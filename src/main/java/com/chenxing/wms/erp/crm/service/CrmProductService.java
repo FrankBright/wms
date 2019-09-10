@@ -125,7 +125,7 @@ public class CrmProductService {
     public R deleteById(Integer id) {
         CrmProduct product = CrmProduct.dao.findById(id);
         if (product != null) {
-            Db.delete("delete FROM 72crm_admin_fieldv where batch_id = ?",product.getBatchId());
+            Db.delete("delete FROM wms_admin_fieldv where batch_id = ?",product.getBatchId());
         }
 
         return CrmProduct.dao.deleteById(id) ? R.ok() : R.error();
@@ -135,7 +135,7 @@ public class CrmProductService {
      * 上架或者下架
      */
     public R updateStatus(String ids, Integer status) {
-        List<Record> recordList = Db.find("select batch_id from 72crm_crm_product where  product_id in (" + ids + ")");
+        List<Record> recordList = Db.find("select batch_id from wms_crm_product where  product_id in (" + ids + ")");
         StringBuilder batchIds = new StringBuilder();
         for (Record record : recordList) {
             if (batchIds.length() == 0) {
@@ -150,7 +150,7 @@ public class CrmProductService {
         } else {
             a = "上架";
         }
-        StringBuilder sqlfield = new StringBuilder("update 72crm_admin_fieldv set value = '" + a + "' where name = '是否上下架' and batch_id in ( ");
+        StringBuilder sqlfield = new StringBuilder("update wms_admin_fieldv set value = '" + a + "' where name = '是否上下架' and batch_id in ( ");
         sqlfield.append(batchIds.toString());
         sqlfield.append(" )");
         int f = Db.update(sqlfield.toString());
@@ -229,8 +229,8 @@ public class CrmProductService {
                         }
                     }
                     String productName = productList.get(kv.getInt("name")).toString();
-                    Integer number = Db.queryInt("select count(*) from 72crm_crm_product where name = ?", productName);
-                    Integer categoryId = Db.queryInt("select category_id from 72crm_crm_product_category where name = ?",productList.get(kv.getInt("产品类型(*)")));
+                    Integer number = Db.queryInt("select count(*) from wms_crm_product where name = ?", productName);
+                    Integer categoryId = Db.queryInt("select category_id from wms_crm_product_category where name = ?",productList.get(kv.getInt("产品类型(*)")));
                     if (categoryId == null){
                         return R.error("第"+errNum+1+"行填写的产品类型不存在");
                     }
@@ -243,7 +243,7 @@ public class CrmProductService {
                                 .fluentPut("description", productList.get(kv.getInt("description")))
                                 .fluentPut("owner_user_id", ownerUserId));
                     } else if (number > 0 && repeatHandling == 1) {
-                        Record product = Db.findFirst("select product_id,batch_id from 72crm_crm_product where name = ?", productName);
+                        Record product = Db.findFirst("select product_id,batch_id from wms_crm_product where name = ?", productName);
                         object.fluentPut("entity", new JSONObject().fluentPut("product_id", product.getInt("product_id"))
                                 .fluentPut("name", productName)
                                 .fluentPut("num", productList.get(kv.getInt("num")))

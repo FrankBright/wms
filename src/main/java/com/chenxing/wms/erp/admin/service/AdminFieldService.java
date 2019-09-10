@@ -59,20 +59,20 @@ public class AdminFieldService {
         List<Record> recordList = Db.find(Db.getSql("admin.field.queryAddField"),label);
         recordList.forEach(r ->{
             if (r.getInt("type") == 10 || r.getInt("type") == 12){
-                r.set("value",Db.queryStr("select value from 72crm_admin_fieldv where field_id = ? and batch_id = ?",r.getInt("field_id"),record.getStr("batch_id")));
+                r.set("value",Db.queryStr("select value from wms_admin_fieldv where field_id = ? and batch_id = ?",r.getInt("field_id"),record.getStr("batch_id")));
             }else {
                 r.set("value",record.get(r.getStr("field_name"))!=null ? record.get(r.getStr("field_name")):"");
             }
         });
         recordList.forEach(field ->{
             if (field.getInt("type") == 8){
-                field.set("value",Db.find("select * from 72crm_admin_file where batch_id = ?",StrUtil.isNotEmpty(field.getStr("value"))?field.getStr("value"):""));
+                field.set("value",Db.find("select * from wms_admin_file where batch_id = ?",StrUtil.isNotEmpty(field.getStr("value"))?field.getStr("value"):""));
             }
             if (field.getInt("type") == 10){
-                field.set("value",Db.find("select user_id,realname from 72crm_admin_user where find_in_set(user_id,ifnull(?,0))",field.getStr("value")));
+                field.set("value",Db.find("select user_id,realname from wms_admin_user where find_in_set(user_id,ifnull(?,0))",field.getStr("value")));
             }
             if (field.getInt("type") == 12){
-                field.set("value",Db.find("select dept_id,name from 72crm_admin_dept where find_in_set(dept_id,ifnull(?,0))",field.getStr("value")));
+                field.set("value",Db.find("select dept_id,name from wms_admin_dept where find_in_set(dept_id,ifnull(?,0))",field.getStr("value")));
             }
         });
         recordToFormType(recordList);
@@ -97,7 +97,7 @@ public class AdminFieldService {
         }
         Integer label = jsonObject.getInteger("label");
         Integer categoryId = jsonObject.getInteger("categoryId");
-        if (categoryId != null && Db.queryInt("select ifnull(is_sys,0) from 72crm_oa_examine_category where category_id = ?", categoryId) == 1) {
+        if (categoryId != null && Db.queryInt("select ifnull(is_sys,0) from wms_oa_examine_category where category_id = ?", categoryId) == 1) {
             return R.error("系统审批类型暂不支持编辑");
         }
         List<Integer> arr = new ArrayList<>();
@@ -107,7 +107,7 @@ public class AdminFieldService {
                 arr.add(field.getFieldId());
             }
         });
-        List<AdminField> fieldSorts = AdminField.dao.find("select name from 72crm_admin_field where label = ?", label);
+        List<AdminField> fieldSorts = AdminField.dao.find("select name from wms_admin_field where label = ?", label);
         List<String> nameList = fieldSorts.stream().map(AdminField::getName).collect(Collectors.toList());
         if (arr.size() > 0) {
             SqlPara sql = Db.getSqlPara("admin.field.deleteByChooseId", Kv.by("ids", arr).set("label", label).set("categoryId", categoryId));
@@ -137,7 +137,7 @@ public class AdminFieldService {
                 if (entity.getFieldType() == 0){
                     Db.update(Db.getSqlPara("admin.field.updateFieldSortName", entity));
                 }else if (entity.getFieldType() == 1){
-                    Db.update("update 72crm_admin_field_sort set name = ? where field_id = ?",entity.getName(),entity.getFieldId());
+                    Db.update("update wms_admin_field_sort set name = ? where field_id = ?",entity.getName(),entity.getFieldId());
                 }
             } else {
                 entity.save();
@@ -201,7 +201,7 @@ public class AdminFieldService {
             if (!ParamsUtil.isValid(kv.getStr("fieldName"))){
                 return R.error("参数包含非法字段");
             }
-            number = Db.queryInt("select count(*) from 72crm_crm_"+tableName+" where "+kv.getStr("fieldName")+" = ? and "+primaryKey+" != ?",kv.getStr("val"),kv.getStr("id")!=null?Integer.valueOf(kv.getStr("id")):0);
+            number = Db.queryInt("select count(*) from wms_crm_"+tableName+" where "+kv.getStr("fieldName")+" = ? and "+primaryKey+" != ?",kv.getStr("val"),kv.getStr("id")!=null?Integer.valueOf(kv.getStr("id")):0);
         }
         return number > 0 ? R.error("参数校验错误").put("error", kv.getStr("fieldName") + "：参数唯一") : R.ok();
     }
@@ -217,7 +217,7 @@ public class AdminFieldService {
         if (array == null || StrUtil.isEmpty(batchId)) {
             return false;
         }
-        Db.deleteById("72crm_admin_fieldv", "batch_id", batchId);
+        Db.deleteById("wms_admin_fieldv", "batch_id", batchId);
         array.forEach(obj -> {
             AdminFieldv fieldv = TypeUtils.castToJavaBean(obj, AdminFieldv.class);
             fieldv.setId(null);
@@ -239,7 +239,7 @@ public class AdminFieldService {
         if (array == null || StrUtil.isEmpty(batchId)) {
             return false;
         }
-        Db.deleteById("72crm_admin_fieldv", "batch_id", batchId);
+        Db.deleteById("wms_admin_fieldv", "batch_id", batchId);
         array.forEach(fieldv -> {
             fieldv.setId(null);
             fieldv.setCreateTime(DateUtil.date());
@@ -250,7 +250,7 @@ public class AdminFieldService {
     }
 
     public synchronized void createView(Integer label) {
-        List<Record> fieldNameList = Db.find("select name,type from 72crm_admin_field WHERE label=? and field_type = 0 ORDER BY sorting asc", label);
+        List<Record> fieldNameList = Db.find("select name,type from wms_admin_field WHERE label=? and field_type = 0 ORDER BY sorting asc", label);
         StringBuilder sql = new StringBuilder();
         StringBuilder userJoin = new StringBuilder();
         StringBuilder deptJoin = new StringBuilder();
@@ -260,12 +260,12 @@ public class AdminFieldService {
             if (type == 10) {
                 sql.append(String.format("GROUP_CONCAT(if(a.name = '%s',b.realname,null)) AS `%s`,", name, name));
                 if (userJoin.length() == 0) {
-                    userJoin.append(" left join 72crm_admin_user b on find_in_set(user_id,ifnull(value,0))");
+                    userJoin.append(" left join wms_admin_user b on find_in_set(user_id,ifnull(value,0))");
                 }
             } else if (type == 12) {
                 sql.append(String.format("GROUP_CONCAT(if(a.name = '%s',c.name,null)) AS `%s`,", name, name));
                 if (deptJoin.length() == 0) {
-                    deptJoin.append(" left join 72crm_admin_dept c on find_in_set(c.dept_id,ifnull(value,0))");
+                    deptJoin.append(" left join wms_admin_dept c on find_in_set(c.dept_id,ifnull(value,0))");
                 }
             } else {
                 sql.append(String.format("max(if(a.name = '%s',value, null)) AS `%s`,", name, name));
@@ -330,7 +330,7 @@ public class AdminFieldService {
         recordList.forEach(record -> {
             if (record.getInt("type") == 10) {
                 if (StrUtil.isNotEmpty(record.getStr("value"))) {
-                    List<Record> userList = Db.find("select user_id,realname from 72crm_admin_user where user_id in (" + record.getStr("value") + ")");
+                    List<Record> userList = Db.find("select user_id,realname from wms_admin_user where user_id in (" + record.getStr("value") + ")");
                     record.set("value", userList);
                 } else {
                     record.set("value", new ArrayList<>());
@@ -338,7 +338,7 @@ public class AdminFieldService {
                 record.set("default_value", new ArrayList<>(0));
             } else if (record.getInt("type") == 12) {
                 if (StrUtil.isNotEmpty(record.getStr("value"))) {
-                    List<Record> deptList = Db.find("select dept_id,name from 72crm_admin_dept where dept_id in (" + record.getStr("value") + ")");
+                    List<Record> deptList = Db.find("select dept_id,name from wms_admin_dept where dept_id in (" + record.getStr("value") + ")");
                     record.set("value", deptList);
                 } else {
                     record.set("value", new ArrayList<>());
@@ -499,7 +499,7 @@ public class AdminFieldService {
 
     public List<AdminFieldStyle> queryFieldStyle(String type) {
         Long userId = BaseUtil.getUser().getUserId();
-        return AdminFieldStyle.dao.find("select * from 72crm_admin_field_style where type = ? and user_id = ?", type, userId);
+        return AdminFieldStyle.dao.find("select * from wms_admin_field_style where type = ? and user_id = ?", type, userId);
     }
 
     /**
@@ -510,7 +510,7 @@ public class AdminFieldService {
     public List<Record> queryListHead(AdminFieldSort adminFieldSort) {
         //查看userid是否存在于顺序表，没有则插入
         Long userId = BaseUtil.getUser().getUserId();
-        Integer number = Db.queryInt("select count(*) from 72crm_admin_field_sort where user_id = ? and label = ?", userId, adminFieldSort.getLabel());
+        Integer number = Db.queryInt("select count(*) from wms_admin_field_sort where user_id = ? and label = ?", userId, adminFieldSort.getLabel());
         if (0 == number) {
             List<Record> fieldList;
             if (adminFieldSort.getLabel() == 8){
@@ -569,7 +569,7 @@ public class AdminFieldService {
         List<Record> fieldList = customFieldList(adminFieldSort.getLabel().toString());
         for (Record record : fieldList) {
             String fieldName = record.getStr("name");
-            Integer number = Db.queryInt("select count(*) as number from 72crm_admin_field_sort where user_id = ? and label = ? and field_name = ?", userId, adminFieldSort.getLabel(), fieldName);
+            Integer number = Db.queryInt("select count(*) as number from wms_admin_field_sort where user_id = ? and label = ? and field_name = ?", userId, adminFieldSort.getLabel(), fieldName);
             if (number.equals(0)) {
                 AdminFieldSort newField = new AdminFieldSort();
                 newField.setFieldName(fieldName).setName(fieldName).setLabel(adminFieldSort.getLabel()).setIsHide(1).setUserId(userId).setSort(1);
@@ -626,17 +626,17 @@ public class AdminFieldService {
             }else {
                 if(10 == dataType){
                     if(StrUtil.isNotEmpty(record.getStr("value"))){
-                        record.set("value",Db.queryStr("select group_concat(realname) from `72crm_admin_user` where user_id in ("+record.getStr("value")+")"));
+                        record.set("value",Db.queryStr("select group_concat(realname) from `wms_admin_user` where user_id in ("+record.getStr("value")+")"));
                     }
                 }else if (12 == dataType) {
                     if(StrUtil.isNotEmpty(record.getStr("value"))){
-                        record.set("value",Db.queryStr("select group_concat(name) from `72crm_admin_dept` where dept_id in ("+record.getStr("value")+")"));
+                        record.set("value",Db.queryStr("select group_concat(name) from `wms_admin_dept` where dept_id in ("+record.getStr("value")+")"));
                     }
                 }
             }
             if(dataType == 8){
                 if(StrUtil.isNotEmpty(record.getStr("value"))){
-                    record.set("value",Db.find("select * from `72crm_admin_file` where batch_id = ?",record.getStr("value")));
+                    record.set("value",Db.find("select * from `wms_admin_file` where batch_id = ?",record.getStr("value")));
                 }
             }
         });

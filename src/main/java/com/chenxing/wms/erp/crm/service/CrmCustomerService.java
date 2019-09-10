@@ -253,7 +253,7 @@ public class CrmCustomerService {
         List<Record> batchIdList = Db.find(Db.getSqlPara("crm.customer.queryBatchIdByIds",Kv.by("ids",idsArr)));
         return Db.tx(() -> {
             Db.batch(Db.getSql("crm.customer.deleteByIds"), "customer_id", idsList, 100);
-            Db.batch("delete from 72crm_admin_fieldv where batch_id = ?","batch_id",batchIdList,100);
+            Db.batch("delete from wms_admin_fieldv where batch_id = ?","batch_id",batchIdList,100);
             return true;
         }) ? R.ok() : R.error();
     }
@@ -362,12 +362,12 @@ public class CrmCustomerService {
             if (1 == crmCustomer.getPower()) {
                 stringBuffer.setLength(0);
                 String roUserId = stringBuffer.append(CrmCustomer.dao.findById(Integer.valueOf(id)).getRoUserId()).append(crmCustomer.getMemberIds()).append(",").toString();
-                Db.update("update 72crm_crm_customer set ro_user_id = ? where customer_id = ?", roUserId, Integer.valueOf(id));
+                Db.update("update wms_crm_customer set ro_user_id = ? where customer_id = ?", roUserId, Integer.valueOf(id));
             }
             if (2 == crmCustomer.getPower()) {
                 stringBuffer.setLength(0);
                 String rwUserId = stringBuffer.append(CrmCustomer.dao.findById(Integer.valueOf(id)).getRwUserId()).append(crmCustomer.getMemberIds()).append(",").toString();
-                Db.update("update 72crm_crm_customer set rw_user_id = ? where customer_id = ?", rwUserId, Integer.valueOf(id));
+                Db.update("update wms_crm_customer set rw_user_id = ? where customer_id = ?", rwUserId, Integer.valueOf(id));
             }
         }
         return R.ok();
@@ -398,7 +398,7 @@ public class CrmCustomerService {
         String[] customerIdsArr = customerIds.split(",");
         StringBuffer stringBuffer = new StringBuffer();
         for (String id : customerIdsArr) {
-            List<Record> recordList = Db.find("select contract_id from 72crm_crm_contract where customer_id = ?", id);
+            List<Record> recordList = Db.find("select contract_id from wms_crm_contract where customer_id = ?", id);
             if (recordList != null) {
                 for (Record record : recordList) {
                     stringBuffer.append(",").append(record.getStr("contract_id"));
@@ -419,7 +419,7 @@ public class CrmCustomerService {
         String[] customerIdsArr = customerIds.split(",");
         StringBuffer stringBuffer = new StringBuffer();
         for (String id : customerIdsArr) {
-            List<Record> recordList = Db.find("select business_id from 72crm_crm_business where customer_id = ?", id);
+            List<Record> recordList = Db.find("select business_id from wms_crm_business where customer_id = ?", id);
             if (recordList != null) {
                 for (Record record : recordList) {
                     stringBuffer.append(",").append(record.getStr("business_id"));
@@ -514,7 +514,7 @@ public class CrmCustomerService {
                 }
             }
         }
-        Db.update("update 72crm_crm_customer set followup = 1 where customer_id = ?",adminRecord.getTypesId());
+        Db.update("update wms_crm_customer set followup = 1 where customer_id = ?",adminRecord.getTypesId());
         return adminRecord.save() ? R.ok() : R.error();
     }
 
@@ -563,9 +563,9 @@ public class CrmCustomerService {
      */
     @Before(Tx.class)
     public R updateRulesSetting(Integer dealDay,Integer followupDay,Integer type) {
-        Db.update("update 72crm_admin_config set value = ? where name = 'customerPoolSettingDealDays'",dealDay);
-        Db.update("update 72crm_admin_config set value = ? where name = 'customerPoolSettingFollowupDays'",followupDay);
-        Db.update("update 72crm_admin_config set status = ? where name = 'customerPoolSetting'",type);
+        Db.update("update wms_admin_config set value = ? where name = 'customerPoolSettingDealDays'",dealDay);
+        Db.update("update wms_admin_config set value = ? where name = 'customerPoolSettingFollowupDays'",followupDay);
+        Db.update("update wms_admin_config set status = ? where name = 'customerPoolSetting'",type);
         return R.ok();
     }
 
@@ -575,9 +575,9 @@ public class CrmCustomerService {
      */
     @Before(Tx.class)
     public R getRulesSetting() {
-        String dealDay = Db.queryStr("select value from 72crm_admin_config where name = 'customerPoolSettingDealDays'");
-        String followupDay = Db.queryStr("select value from 72crm_admin_config where name = 'customerPoolSettingFollowupDays'");
-        Integer type = Db.queryInt("select status from 72crm_admin_config where name = 'customerPoolSetting'");
+        String dealDay = Db.queryStr("select value from wms_admin_config where name = 'customerPoolSettingDealDays'");
+        String followupDay = Db.queryStr("select value from wms_admin_config where name = 'customerPoolSettingFollowupDays'");
+        Integer type = Db.queryInt("select status from wms_admin_config where name = 'customerPoolSetting'");
         if (dealDay == null || followupDay == null || type == null){
             if (dealDay == null){
                 AdminConfig adminConfig = new AdminConfig();
@@ -601,7 +601,7 @@ public class CrmCustomerService {
                 type = 0;
             }
         }
-        AdminConfig config = AdminConfig.dao.findFirst("select status,value  from 72crm_admin_config where name = 'expiringContractDays' limit 1");
+        AdminConfig config = AdminConfig.dao.findFirst("select status,value  from wms_admin_config where name = 'expiringContractDays' limit 1");
         if (config == null){
             config = new AdminConfig();
             config.setStatus(0);
@@ -621,13 +621,13 @@ public class CrmCustomerService {
     @Before(Tx.class)
     public R updateCustomerByIds(String ids) {
         crmRecordService.addPutIntoTheOpenSeaRecord(TagUtil.toSet(ids),CrmEnum.CUSTOMER_TYPE_KEY.getTypes());
-        StringBuffer sq = new StringBuffer("select count(*) from 72crm_crm_customer where customer_id in ( ");
+        StringBuffer sq = new StringBuffer("select count(*) from wms_crm_customer where customer_id in ( ");
         sq.append(ids).append(") and is_lock = 1");
         Integer count = Db.queryInt(sq.toString());
         if (count > 0) {
             return R.error("选中的客户有被锁定的，不能放入公海！");
         }
-        StringBuffer sql = new StringBuffer("UPDATE 72crm_crm_customer SET owner_user_id = null where customer_id in (");
+        StringBuffer sql = new StringBuffer("UPDATE wms_crm_customer SET owner_user_id = null where customer_id in (");
         sql.append(ids).append(") and is_lock = 0");
         String[] idsArr = ids.split(",");
         for (String id:idsArr){
@@ -718,7 +718,7 @@ public class CrmCustomerService {
                         }
                     }
                     String customerName = customerList.get(kv.getInt("customer_name")).toString();
-                    Integer number = Db.queryInt("select count(*) from 72crm_crm_customer where customer_name = ?", customerName);
+                    Integer number = Db.queryInt("select count(*) from wms_crm_customer where customer_name = ?", customerName);
                     if (0 == number) {
                         object.fluentPut("entity", new JSONObject().fluentPut("customer_name", customerName)
                                 .fluentPut("mobile",customerList.get(kv.getInt("mobile")))
@@ -730,7 +730,7 @@ public class CrmCustomerService {
                                 .fluentPut("deal_status",customerList.get(kv.getInt("deal_status")))
                                 .fluentPut("owner_user_id", ownerUserId));
                     } else if (number > 0 && repeatHandling == 1) {
-                        Record leads = Db.findFirst("select customer_id,batch_id from 72crm_crm_customer where customer_name = ?", customerName);
+                        Record leads = Db.findFirst("select customer_id,batch_id from wms_crm_customer where customer_name = ?", customerName);
                         object.fluentPut("entity", new JSONObject().fluentPut("customer_id", leads.getInt("customer_id"))
                                 .fluentPut("customer_name", customerName)
                                 .fluentPut("mobile",customerList.get(kv.getInt("mobile")))

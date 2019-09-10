@@ -55,7 +55,7 @@ public class BiFunnelService {
         for (int i=1; i <= cycleNum;i++){
             sqlStringBuffer.append("select '").append(beginTime).append("' as type,IFNULL((select count(1) from businessview where DATE_FORMAT(create_time,'")
                     .append(sqlDateFormat).append("') = '").append(beginTime).append("' and owner_user_id in (").append(userIds)
-                    .append(")),0) as businessNum,IFNULL(sum(money),0) as businessMoney from 72crm_crm_business  where DATE_FORMAT(create_time,'")
+                    .append(")),0) as businessNum,IFNULL(sum(money),0) as businessMoney from wms_crm_business  where DATE_FORMAT(create_time,'")
                     .append(sqlDateFormat).append("') = '").append(beginTime).append("' and owner_user_id in (").append(userIds).append(")");
             if (i != cycleNum){
                 sqlStringBuffer.append(" union all ");
@@ -104,7 +104,7 @@ public class BiFunnelService {
                     .append(")),0) as businessEnd,COUNT(1) as businessNum,").append(" IFNULL((select count(1) from businessview where DATE_FORMAT(create_time,'")
                     .append(sqlDateFormat).append("') = '").append(beginTime).append("'and is_end = 1 and owner_user_id in (").append(userIds).
                     append(")) / COUNT(1),0 )").append(" as proportion ").
-                    append(" from 72crm_crm_business  where DATE_FORMAT(create_time,'")
+                    append(" from wms_crm_business  where DATE_FORMAT(create_time,'")
                     .append(sqlDateFormat).append("') = '").append(beginTime).append("' and owner_user_id in (").append(userIds).append(")");
             if (i != cycleNum){
                 sqlStringBuffer.append(" union all ");

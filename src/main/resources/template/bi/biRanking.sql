@@ -2,9 +2,9 @@
   #sql ("contractRanKing")
       SELECT IFNULL(SUM(cct.money), 0) as money,cau.realname,cct.owner_user_id,cad.name as structureName
       FROM
-        72crm_crm_contract as cct
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = cct.owner_user_id
-       left join 72crm_admin_dept as cad on cad.dept_id = cau.dept_id
+        wms_crm_contract as cct
+      LEFT JOIN wms_admin_user as cau on cau.user_id = cct.owner_user_id
+       left join wms_admin_dept as cad on cad.dept_id = cau.dept_id
       WHERE
         check_status = 2
         and  cct.owner_user_id in (
@@ -52,9 +52,9 @@
   #sql ("receivablesRanKing")
       SELECT IFNULL(SUM(cct.money), 0) as money,cau.realname,cad.name as structureName
       FROM
-        72crm_crm_receivables as cct
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = cct.owner_user_id
-      left join 72crm_admin_dept as cad on cad.dept_id = cau.dept_id
+        wms_crm_receivables as cct
+      LEFT JOIN wms_admin_user as cau on cau.user_id = cct.owner_user_id
+      left join wms_admin_dept as cad on cad.dept_id = cau.dept_id
       WHERE
         check_status = 2
         and  cct.owner_user_id in (
@@ -102,9 +102,9 @@
   #sql ("contractCountRanKing")
       SELECT count(1) as `count`,cau.realname,cct.owner_user_id,cad.name as structureName
       FROM
-        72crm_crm_contract as cct
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = cct.owner_user_id
-       left join 72crm_admin_dept as cad on cad.dept_id = cau.dept_id
+        wms_crm_contract as cct
+      LEFT JOIN wms_admin_user as cau on cau.user_id = cct.owner_user_id
+       left join wms_admin_dept as cad on cad.dept_id = cau.dept_id
       WHERE
         check_status = 2
         and  cct.owner_user_id in (
@@ -152,10 +152,10 @@
    #sql ("productCountRanKing")
      SELECT count(1) as `count`,cau.realname,cct.owner_user_id,cad.name as structureName
       FROM
-        72crm_crm_contract_product as ccp
-      LEFT JOIN 72crm_crm_contract as cct on ccp.contract_id = cct.contract_id
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = cct.owner_user_id
-       left join 72crm_admin_dept as cad on cad.dept_id = cau.dept_id
+        wms_crm_contract_product as ccp
+      LEFT JOIN wms_crm_contract as cct on ccp.contract_id = cct.contract_id
+      LEFT JOIN wms_admin_user as cau on cau.user_id = cct.owner_user_id
+       left join wms_admin_dept as cad on cad.dept_id = cau.dept_id
       WHERE
         check_status = 2
         and  cct.owner_user_id in (
@@ -203,9 +203,9 @@
   #sql ("customerCountRanKing")
       SELECT count(1) as `count`,cau.realname,cct.create_user_id,cad.name as structureName
       FROM
-        72crm_crm_customer as cct
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = cct.create_user_id
-       left join 72crm_admin_dept as cad on cad.dept_id = cau.dept_id
+        wms_crm_customer as cct
+      LEFT JOIN wms_admin_user as cau on cau.user_id = cct.create_user_id
+       left join wms_admin_dept as cad on cad.dept_id = cau.dept_id
       WHERE
          cct.create_user_id in (
          #for(i : userIds)
@@ -252,9 +252,9 @@
   #sql ("contactsCountRanKing")
       SELECT count(1) as `count`,cau.realname,cct.create_user_id,cad.name as structureName
       FROM
-        72crm_crm_contacts as cct
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = cct.create_user_id
-       left join 72crm_admin_dept as cad on cad.dept_id = cau.dept_id
+        wms_crm_contacts as cct
+      LEFT JOIN wms_admin_user as cau on cau.user_id = cct.create_user_id
+       left join wms_admin_dept as cad on cad.dept_id = cau.dept_id
       WHERE
          cct.create_user_id in (
          #for(i : userIds)
@@ -301,9 +301,9 @@
   #sql ("customerGenjinCountRanKing")
       SELECT count(1) as `count`,cau.realname,cct.owner_user_id,cad.name as structureName
       FROM
-        72crm_crm_customer as cct
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = cct.owner_user_id
-       left join 72crm_admin_dept as cad on cad.dept_id = cau.dept_id
+        wms_crm_customer as cct
+      LEFT JOIN wms_admin_user as cau on cau.user_id = cct.owner_user_id
+       left join wms_admin_dept as cad on cad.dept_id = cau.dept_id
       WHERE
          cct.owner_user_id in (
          #for(i : userIds)
@@ -350,9 +350,9 @@
   #sql ("recordCountRanKing")
       SELECT count(1) as `count`,cau.realname,ccr.create_user_id,cad.name as structureName
       FROM
-        72crm_admin_record as ccr
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = ccr.create_user_id
-       left join 72crm_admin_dept as cad on cad.dept_id = cau.dept_id
+        wms_admin_record as ccr
+      LEFT JOIN wms_admin_user as cau on cau.user_id = ccr.create_user_id
+       left join wms_admin_dept as cad on cad.dept_id = cau.dept_id
       WHERE
          ccr.create_user_id in (
          #for(i : userIds)
@@ -398,10 +398,10 @@
   #end
    #sql ("contractProductRanKing")
      SELECT IFNULL(SUM(cccp.num),0) as num ,ccpc.`name` as categoryName,ccp.`name` as productName,ccpc.category_id , ccp.product_id
-      FROM 72crm_crm_contract_product  as cccp
-      LEFT JOIN 72crm_crm_contract as cct on cct.contract_id = cccp.contract_id
-      LEFT JOIN 72crm_crm_product as ccp on ccp.product_id = cccp.product_id
-      LEFT JOIN 72crm_crm_product_category as ccpc ON ccpc.category_id = ccp.category_id
+      FROM wms_crm_contract_product  as cccp
+      LEFT JOIN wms_crm_contract as cct on cct.contract_id = cccp.contract_id
+      LEFT JOIN wms_crm_product as ccp on ccp.product_id = cccp.product_id
+      LEFT JOIN wms_crm_product_category as ccpc ON ccpc.category_id = ccp.category_id
       WHERE
         check_status = 2
         and  cct.owner_user_id in (
@@ -448,10 +448,10 @@
   #sql ("travelCountRanKing")
       SELECT count(1) as `count`,cau.realname,coe.create_user_id,cad.name as structureName
       FROM
-        72crm_oa_examine_travel as coet
-         LEFT JOIN 72crm_oa_examine as coe on coe.examine_id = coet.examine_id
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = coe.create_user_id
-       left join 72crm_admin_dept as cad on cad.dept_id = cau.dept_id
+        wms_oa_examine_travel as coet
+         LEFT JOIN wms_oa_examine as coe on coe.examine_id = coet.examine_id
+      LEFT JOIN wms_admin_user as cau on cau.user_id = coe.create_user_id
+       left join wms_admin_dept as cad on cad.dept_id = cau.dept_id
       WHERE
          coe.create_user_id in (
          #for(i : userIds)
@@ -499,12 +499,12 @@
     SELECT cct.contract_id,ccs.customer_id,ccp.product_id,ccpc.category_id,cct.`name` as contractName,
       ccpc.`name` as categoryName,ccs.customer_name as customerName,cccp.num as num,cccp.subtotal ,cccp.sales_price as salesPrice,
       cct.num as contractNum,cct.owner_user_id  ,cau.realname,cccp.unit,cccp.discount,cccp.price
-      FROM 72crm_crm_contract as cct
-      LEFT JOIN 72crm_crm_contract_product as cccp ON cccp.contract_id = cct.contract_id
-      LEFT JOIN 72crm_crm_customer as ccs on ccs.customer_id = cct.customer_id
-      LEFT JOIN 72crm_crm_product as ccp on ccp.product_id = cccp.product_id
-      LEFT JOIN 72crm_crm_product_category as ccpc ON ccp.category_id = ccpc.category_id
-      LEFT JOIN 72crm_admin_user as cau on cau.user_id = cct.owner_user_id
+      FROM wms_crm_contract as cct
+      LEFT JOIN wms_crm_contract_product as cccp ON cccp.contract_id = cct.contract_id
+      LEFT JOIN wms_crm_customer as ccs on ccs.customer_id = cct.customer_id
+      LEFT JOIN wms_crm_product as ccp on ccp.product_id = cccp.product_id
+      LEFT JOIN wms_crm_product_category as ccpc ON ccp.category_id = ccpc.category_id
+      LEFT JOIN wms_admin_user as cau on cau.user_id = cct.owner_user_id
       where
           cct.check_status = 2
         and  cct.owner_user_id in (
@@ -549,9 +549,9 @@
       #end
       #sql("addressAnalyse")
         SELECT  COUNT(1) as allCustomer,
-        ifnull((SELECT COUNT(1) FROM 72crm_crm_customer where deal_status = '已成交' and left(address,INSTR(address, ',') - 1) = left(ccc.address,INSTR(ccc.address, ',') - 1)) ,0)as dealCustomer,
+        ifnull((SELECT COUNT(1) FROM wms_crm_customer where deal_status = '已成交' and left(address,INSTR(address, ',') - 1) = left(ccc.address,INSTR(ccc.address, ',') - 1)) ,0)as dealCustomer,
         #para(address) as address
-        FROM 72crm_crm_customer as ccc
+        FROM wms_crm_customer as ccc
         where  left(ccc.address,INSTR(ccc.address, ',') - 1) like concat('%',#para(address),'%')
       #end
        #sql("portrait")

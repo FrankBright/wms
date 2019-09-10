@@ -60,11 +60,11 @@ public class AdminExamineRecordController extends Controller {
      */
     private boolean getExamineObjIdByRecordId(Integer recordId){
         boolean auth;
-        Integer id = Db.queryInt("select contract_id from `72crm_crm_contract` where examine_record_id = ?",recordId);
+        Integer id = Db.queryInt("select contract_id from `wms_crm_contract` where examine_record_id = ?",recordId);
         if(id != null){
             auth = AuthUtil.isCrmAuth(AuthUtil.getCrmTablePara(CrmEnum.CONTRACT_TYPE_KEY.getSign()),id);
         }else {
-            id = Db.queryInt("select receivables_id from `72crm_crm_receivables` where examine_record_id = ?",recordId);
+            id = Db.queryInt("select receivables_id from `wms_crm_receivables` where examine_record_id = ?",recordId);
             auth = AuthUtil.isCrmAuth(AuthUtil.getCrmTablePara(CrmEnum.RECEIVABLES_TYPE_KEY.getSign()),id);
         }
         return auth;

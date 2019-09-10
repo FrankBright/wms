@@ -35,11 +35,11 @@ public class LabelService{
     }
 
     public R deleteLabel(String labelId){
-        Integer count = Db.queryInt("select count(*) from 72crm_task where label_id like concat('%,',?,',%');", labelId);
+        Integer count = Db.queryInt("select count(*) from wms_task where label_id like concat('%,',?,',%');", labelId);
         if(count>0){
             return R.error("使用中的标签不能删除");
         }
-        Db.delete("delete from 72crm_work_task_label where label_id = ?",labelId);
+        Db.delete("delete from wms_work_task_label where label_id = ?",labelId);
         return R.ok();
     }
 
@@ -66,14 +66,14 @@ public class LabelService{
 
     public R getLabelListByOwn(){
         Long userId = BaseUtil.getUserId();
-        List<String> labelIdList = Db.query("select label_id from `72crm_task` where create_user_id = ? or main_user_id = ? or owner_user_id like concat('%,',?,',%') and ishidden = 0", userId, userId, userId);
+        List<String> labelIdList = Db.query("select label_id from `wms_task` where create_user_id = ? or main_user_id = ? or owner_user_id like concat('%,',?,',%') and ishidden = 0", userId, userId, userId);
         List<Integer> list = workService.toList(labelIdList);
         List<String> collect = list.stream().map(Object::toString).collect(Collectors.toList());
         List<WorkTaskLabel> resultList;
         if(AuthUtil.isWorkAdmin()){
             resultList = new WorkTaskLabel().dao().findAll();
         }else {
-            resultList = new WorkTaskLabel().find("select * from `72crm_work_task_label` where label_id in (?)", String.join(",", collect));
+            resultList = new WorkTaskLabel().find("select * from `wms_work_task_label` where label_id in (?)", String.join(",", collect));
         }
         return R.ok().put("data",resultList);
     }
