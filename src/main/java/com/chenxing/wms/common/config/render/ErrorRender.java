@@ -17,7 +17,7 @@ public class ErrorRender extends Render {
 
     private static final String JSON_CONTENT_TYPE = "application/json; charset=" + getEncoding();
 
-    private static String HTML_CONTENT = "<html><head><title>TITLE</title></head><body bgcolor='white'><center><h1>CONTENT</h1></center><hr>www.5kcrm.com</body></html>";
+    private static String HTML_CONTENT = "<html><head><title>TITLE</title></head><body bgcolor='white'><center><h1>CONTENT</h1></center><hr>www.cwsoft.com</body></html>";
 
     private static final String HTML404 = HTML_CONTENT.replace("TITLE", "404 Not Found").replace("CONTENT", "404 Not Found");
 
@@ -79,7 +79,7 @@ public class ErrorRender extends Render {
             return HTML403;
         } else {
             return "<html><head><title>" + errorCode + " Error</title></head><body bgcolor='white'><center><h1>" + errorCode
-                    + " Error</h1></center><hr>悟空软件</body></html>";
+                    + " Error</h1></center><hr>晨微软件</body></html>";
         }
     }
 
