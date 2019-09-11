@@ -1,0 +1,23 @@
+Mysql:
+wget http://repo.mysql.com/mysql80-community-release-el7-3.noarch.rpm
+rpm -ivh mysql80-community-release-el7-3.noarch.rpm
+dpkg -i mysql80-community-release_0el7-4_all.deb
+
+apt install mysql-server-core-5.7            
+apt install mariadb-server-core-10.1         
+apt install percona-xtradb-cluster-server-5.7
+
+mysqld --initialize
+A temporary password is generated for root@localhost: I9aM0mT(<f4T
+
+
+systemctl start mysqld
+
+or
+sudo apt-get purge mysql-server
+sudo apt-get autoremove
+sudo apt-get autoclean
+Re-Installing:
+
+sudo apt-get update
+sudo apt-get install mysql-server
