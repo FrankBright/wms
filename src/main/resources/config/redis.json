@@ -1,10 +1,10 @@
 {
   "type":1,
-  "remarks":"1为单机版，2为cluster集群，3为sentinel集群",
+  "remarks":"1涓哄崟鏈虹増锛�2涓篶luster闆嗙兢锛�3涓簊entinel闆嗙兢",
   "cacheName":"master",
   "host":[
     "127.0.0.1:6379"
   ],
-  "password":"123456",
+  "password":"Wonderware777",
   "database":0
 }
